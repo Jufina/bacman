@@ -18,10 +18,8 @@ public class Server {
             e.printStackTrace();
         }
     }
-   public void Server() {
-       gameEngine=new GameEngine(1);
-   }
     public void run() throws IOException {
+        gameEngine=new GameEngine(1);
         Map<Integer, Integer> idPlayers=new HashMap<Integer, Integer>();
         int pacSize = 20*20+2;
         int port = 4444;
@@ -41,11 +39,12 @@ public class Server {
             }
 
             for (int pac = 0; pac < 4; pac++) {
-                pacs[pac].setData(gameEngine.getResult());
+                byte[] tr = gameEngine.getResult();
+                pacs[pac].setData(tr);
                 s.send(pacs[pac]);
             }
 
-            s.setSoTimeout(600);
+            s.setSoTimeout(60000);
             while (true) {
                 byte[] movepl=new byte[4];
                 for (int pac = 0; pac < 4; pac++) {
@@ -54,7 +53,11 @@ public class Server {
                 }
                 byte[] result;
                 result=gameEngine.rebuildingMap(movepl);
-
+                try {
+                    Thread.sleep(300);                 //1000 milliseconds is one second.
+                } catch(InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
                 for (int pac = 0; pac < 4; pac++) {
                     pacs[pac].setData(result);
                     s.send(pacs[pac]);
