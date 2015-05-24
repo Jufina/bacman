@@ -1,8 +1,7 @@
 package server;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 
 /**
  * Created by Julia on 24.05.2015.
@@ -10,48 +9,48 @@ import java.net.Socket;
 public class Server {
     public static void main(String[] args) {
         Server server=new Server();
-        server.run();
-    }
-    public void run() {
-        System.out.println("Добро пожаловать на тёмную сторону!");
-        BufferedReader in = null;
-        PrintWriter out= null;
-
-        ServerSocket servers = null;
-        Socket fromclient = null;
-
-        // create server socket
         try {
-            servers = new ServerSocket(4444);
+            server.run();
         } catch (IOException e) {
-            System.out.println("Couldn't listen to port 4444");
-            System.exit(-1);
+            e.printStackTrace();
         }
-        int cntClients=0;
-        while(cntClients != 4) {
-            try {
-                System.out.print("Waiting for a client...");
-                fromclient = servers.accept();
-                System.out.println("Client connected");
-                cntClients++;
-                ClientService cs=new ClientService(fromclient);
-                cs.start();
-            } catch (IOException e) {
-                System.out.println("Can't accept");
-                System.exit(-1);
-            }
+    }
+    public void run() throws IOException {
+        int pacSize = 1000;
+        int port = 4444;
+        byte data[] = new byte[pacSize];
+        System.out.println("Server starts...");
+        DatagramPacket[] pacs = new DatagramPacket[4];
+        for (int pac = 0; pac < 4; pac++) {
+            pacs[pac] = new DatagramPacket(data, data.length);
         }
-
-
-
+        DatagramSocket s = new DatagramSocket(port);
         try {
-            servers.close();
-        }
-        catch (IOException e) {
-            System.out.println("Can't accept");
-            System.exit(-1);
-        }
+            s.setSoTimeout(300000);
+            for (int pac = 0; pac < 4; pac++) {
+                s.receive(pacs[pac]);
+            }
 
+            for (int pac = 0; pac < 4; pac++) {
+                s.send(pacs[pac]);
+            }
+
+            s.setSoTimeout(600);
+            while (true) {
+                for (int pac = 0; pac < 4; pac++) {
+                    s.receive(pacs[pac]);
+                }
+                //TODO: run Engine
+                //TODO: pacs = ...
+
+                for (int pac = 0; pac < 4; pac++) {
+                    s.send(pacs[pac]);
+                }
+            }
+        } catch (SocketTimeoutException e) {
+            // если время ожидания вышло
+            System.out.println("Истекло время ожидания, прием данных закончен");
+        }
     }
 
 }
