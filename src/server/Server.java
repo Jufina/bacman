@@ -71,7 +71,7 @@ public class Server {
                     Thread.sleep(300);                 //1000 milliseconds is one second.
                 } catch(InterruptedException ex) {
                     Thread.currentThread().interrupt();
-                }
+                }цуацуа
                 for (int pac = 0; pac < 4; pac++) {
                     pacs[pac].setData(result);
                     s.send(pacs[pac]);
