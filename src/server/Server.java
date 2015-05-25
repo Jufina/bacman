@@ -21,7 +21,7 @@ public class Server {
     public void run() throws IOException {
         gameEngine=new GameEngine(1);
         Map<Integer, Integer> idPlayers=new HashMap<Integer, Integer>();
-        int pacSize = 20*20+2;
+        int pacSize = 20*20+6;
         int port = 4444;
         byte data[] = new byte[pacSize];
         System.out.println("Server starts...");
@@ -30,15 +30,29 @@ public class Server {
             pacs[pac] = new DatagramPacket(data, data.length);
         }
         DatagramSocket s = new DatagramSocket(port);
+
+        byte[] idpl=new byte[4];
         try {
             s.setSoTimeout(300000);
             for (int pac = 0; pac < 4; pac++) {
                 s.receive(pacs[pac]);
                 System.out.println("КЛИЕНТ ПОДКЛЮЧИЛСЯ - "+pacs[pac].getPort());
                 idPlayers.put(pacs[pac].getPort(),pac);
+                // JULIA//
+
+                idpl[pac]=(byte)pacs[pac].getPort();
+                System.out.println(idpl[pac]+" - "+pac);
+                pacs[pac].setData(idpl);
+                System.out.println(pacs[pac].getData()[0]);
+                System.out.println(pacs[pac].getData()[1]);
+                System.out.println(pacs[pac].getData()[2]);
+                System.out.println(pacs[pac].getData()[3]);
+
             }
 
             for (int pac = 0; pac < 4; pac++) {
+
+                s.send(pacs[pac]);
                 byte[] tr = gameEngine.getResult();
                 pacs[pac].setData(tr);
                 s.send(pacs[pac]);

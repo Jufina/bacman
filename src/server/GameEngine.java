@@ -1,5 +1,6 @@
 package server;
 
+import javax.sound.midi.SysexMessage;
 import java.io.*;
 
 /**
@@ -44,6 +45,8 @@ public class GameEngine {
             case 3: // left
                 possibleMove = tryToMove(i, j, i, j - 1);
                 break;
+            default:
+                break;
         }
         return possibleMove;
     }
@@ -53,28 +56,30 @@ public class GameEngine {
         for (int i = 0; i < 20; i++) {
             for (int j = 0; j < 20; j++) {
                 if (map[i][j] >=1 && map[i][j] <= 4 && !playersMove[map[i][j] - 1]) {
-                    playersMove[map[i][j] - 1] = true;
-                    if (!movePlayer(movepl[map[i][j] - 1], i, j))
-                        movePlayer(lastMovepl[map[i][j] - 1], i, j);
+                    int numberOfPlayer = map[i][j] - 1;
+                    playersMove[numberOfPlayer] = true;
+                    if (!movePlayer(movepl[numberOfPlayer], i, j))
+                        movePlayer(lastMovepl[numberOfPlayer], i, j);
                     else
-                        lastMovepl = movepl;
+                        lastMovepl[numberOfPlayer] = movepl[numberOfPlayer];
                 }
             }
         }
         return getResult();
     }
     public byte[] getResult() {
-        byte[] res = new byte[20*20 + 2];
+        byte[] res = new byte[20*20 + 6];
         for (int i=0; i<20; i++) {
-            for (int j=0; j<20; j++) {
-                res[i*20 + j] = map[i][j];
-            }
+            System.arraycopy(map[i], 0, res, i*20, 20);
         }
         res[20*20] = teamsScore[0];
         res[20*20 + 1] = teamsScore[1];
+        System.arraycopy(lastMovepl, 0, res, 20*20 + 2, 4);
         return res;
     }
     public GameEngine(int numOfMap) {
+        teamsScore = new byte[2];
+        lastMovepl = new byte[4];
         FileInputStream inputStream;
         try {
             inputStream = new FileInputStream("map" + numOfMap + ".txt");
@@ -90,10 +95,10 @@ public class GameEngine {
                     map[i][j] = (byte) (str.charAt(j) - '0');
                 }
             }
+            reader.close();
+            inputStream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        teamsScore = new byte[2];
-        lastMovepl = new byte[4];
     }
 }
