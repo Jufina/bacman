@@ -23,7 +23,7 @@ public class GameEngine {
         if (map[toI][toJ] == 6 || map[toI][toJ] == 0) {
             if (map[toI][toJ] == 6) {
                 teamsScore[teamId]++;
-            }
+            }ываываываыа
             map[toI][toJ] = map[i][j];
             map[i][j] = 0;
             return true;
