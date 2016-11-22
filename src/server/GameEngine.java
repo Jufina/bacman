@@ -15,7 +15,7 @@ public class GameEngine {
             toI = 19;
         if (toJ < 0)
             toJ = 19;
-        if (toI >= 20)
+        if (toI >= 20)234234
             toI = 0;
         if (toJ >= 20)
             toJ = 0;
